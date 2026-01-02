@@ -1,11 +1,11 @@
-import { db } from "./db";
+import { client } from "../client";
 
 export function runMigrations() {
   // Enable foreign keys
-  db.run("PRAGMA foreign_keys = ON");
+  client.run("PRAGMA foreign_keys = ON");
 
   // Create destinations table
-  db.run(`
+  client.run(`
     CREATE TABLE IF NOT EXISTS destinations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -16,21 +16,21 @@ export function runMigrations() {
   `);
 
   // Create vows table
-  db.run(`
+  client.run(`
     CREATE TABLE IF NOT EXISTS vows (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       destination_id INTEGER NOT NULL,
       user_name TEXT NOT NULL,
       vow_date DATETIME DEFAULT CURRENT_TIMESTAMP,
       target_visit_date DATE,
-      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'completed', 'cancelled')),
+      status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'COMPLETED', 'CANCELLED')),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (destination_id) REFERENCES destinations(id) ON DELETE CASCADE
     )
   `);
 
   // Create visits table
-  db.run(`
+  client.run(`
     CREATE TABLE IF NOT EXISTS visits (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       vow_id INTEGER NOT NULL,
@@ -44,15 +44,15 @@ export function runMigrations() {
   `);
 
   // Create indexes for better query performance
-  db.run(
+  client.run(
     `CREATE INDEX IF NOT EXISTS idx_vows_destination ON vows(destination_id)`,
   );
-  db.run(`CREATE INDEX IF NOT EXISTS idx_vows_status ON vows(status)`);
-  db.run(`CREATE INDEX IF NOT EXISTS idx_visits_vow ON visits(vow_id)`);
+  client.run(`CREATE INDEX IF NOT EXISTS idx_vows_status ON vows(status)`);
+  client.run(`CREATE INDEX IF NOT EXISTS idx_visits_vow ON visits(vow_id)`);
 
   console.log("✅ Database migrations completed successfully!");
 
-  db.close();
+  client.close();
 }
 
 // Run migrations if this file is executed directly

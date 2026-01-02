@@ -1,21 +1,24 @@
-import { db } from "./db";
-import { createDestination, createVow } from "./helpers";
+import { client } from "../client";
+import { CreateDestinationInput } from "../models/destinations";
+import { CreateVowInput, VowStatus } from "../models/vows";
+import { destinationQueries } from "../repository/destination";
+import { vowQueries } from "../repository/vow";
 
 export function seedDatabase() {
   console.log("🌱 Seeding database...");
 
   // Clear existing data
-  db.run("DELETE FROM visits");
-  db.run("DELETE FROM vows");
-  db.run("DELETE FROM destinations");
+  client.run("DELETE FROM visits");
+  client.run("DELETE FROM vows");
+  client.run("DELETE FROM destinations");
 
   // Reset autoincrement counters
-  db.run(
+  client.run(
     "DELETE FROM sqlite_sequence WHERE name IN ('destinations', 'vows', 'visits')",
   );
 
   // Add sample destinations
-  const destinations = [
+  const destinations: CreateDestinationInput[] = [
     {
       name: "Tokyo, Japan",
       description:
@@ -55,56 +58,47 @@ export function seedDatabase() {
 
   const destinationIds: number[] = [];
   for (const dest of destinations) {
-    const result = createDestination(
-      dest.name,
-      dest.description,
-      dest.image_url,
-    );
+    const result = destinationQueries.create(dest);
     destinationIds.push(Number(result.lastInsertRowid));
     console.log(`  ✓ Added destination: ${dest.name}`);
   }
 
   // Add sample vows
-  const vows = [
+  const vows: CreateVowInput[] = [
     {
       destination_id: destinationIds[0],
       user_name: "Alice Chen",
       target_visit_date: "2025-06-15",
-      status: "pending" as const,
+      status: VowStatus.Pending,
     },
     {
       destination_id: destinationIds[1],
       user_name: "Bob Johnson",
       target_visit_date: "2025-08-20",
-      status: "pending" as const,
+      status: VowStatus.Pending,
     },
     {
       destination_id: destinationIds[0],
       user_name: "Charlie Smith",
       target_visit_date: "2025-04-10",
-      status: "completed" as const,
+      status: VowStatus.Completed,
     },
     {
       destination_id: destinationIds[2],
       user_name: "Diana Martinez",
       target_visit_date: "2025-09-05",
-      status: "pending" as const,
+      status: VowStatus.Pending,
     },
     {
       destination_id: destinationIds[3],
       user_name: "Alice Chen",
       target_visit_date: "2025-12-15",
-      status: "pending" as const,
+      status: VowStatus.Pending,
     },
   ];
 
   for (const vow of vows) {
-    createVow(
-      vow.destination_id,
-      vow.user_name,
-      vow.target_visit_date,
-      vow.status,
-    );
+    vowQueries.create(vow);
     console.log(
       `  ✓ Added vow: ${vow.user_name} → Destination #${vow.destination_id}`,
     );
