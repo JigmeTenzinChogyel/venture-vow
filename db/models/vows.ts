@@ -17,7 +17,7 @@ export type Vow = {
   created_at: DateTime;
 };
 
-export type Vows = [Vow];
+export type Vows = Vow[];
 
 export type CreateVowInput = {
   destination_id: number;

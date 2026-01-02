@@ -11,7 +11,7 @@ export type Visit = {
   created_at: DateTime;
 };
 
-export type Visits = [Visit];
+export type Visits = Visit[];
 
 export type CreateVisitInput = {
   vow_id: number;

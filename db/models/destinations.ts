@@ -9,7 +9,7 @@ export type Destination = {
   created_at: DateTime;
 };
 
-export type Destinations = [Destination];
+export type Destinations = Destination[];
 
 export type CreateDestinationInput = {
   name: string;
